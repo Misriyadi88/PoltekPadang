@@ -6,8 +6,8 @@
     <!-- Header and Create Button -->
     <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-800">Vehicle Types</h1>
-        <a href="#"
-           @click.prevent="alert('Create functionality would go here')"
+        <a href="/vehicle-types/create"
+           {{-- @click.prevent="alert('Create functionality would go here')" --}}
            class="px-2 py-0.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center">
             <i class="fas fa-plus mr-2"></i> Add New Type
         </a>
@@ -66,7 +66,7 @@
             <!-- Search Field -->
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
-                <input type="text"
+                <input type="text" @change="fetchVehicleTypes()" @input="fetchVehicleTypes()"
                     id="search"
                     x-model="search"
                     placeholder="Type to search..."
@@ -122,12 +122,17 @@
                                 </span>
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="#"
-                                   @click.prevent="alert('Edit functionality would go here')" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-4">
+                                <a :href="`/vehicle-types/${vehicleType.vehicle_type_id}`"
+                                class="text-blue-600 hover:text-blue-900" title="View">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <a :href="`/vehicle-types/${vehicleType.vehicle_type_id}/edit`"
+                                class="text-yellow-500 hover:text-yellow-700" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button @click="confirmDelete(vehicleType.vehicle_type_id)" class="text-red-600 hover:text-red-900">
+                                <button @click="confirmDelete(vehicleType.vehicle_type_id)"
+                                        class="text-red-600 hover:text-red-900" title="Delete" type="button">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -195,7 +200,7 @@
         </div>
     </div>
     <!-- Delete Confirmation Modal -->
-    {{-- <div x-show="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+    <div x-show="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Confirm Delete</h2>
             <p class="text-gray-600 mb-6">Are you sure you want to delete this vehicle type?</p>
@@ -204,7 +209,7 @@
                 <button @click="deleteVehicleType()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
             </div>
         </div>
-    </div> --}}
+    </div>
 </div>
 
 @push('scripts')

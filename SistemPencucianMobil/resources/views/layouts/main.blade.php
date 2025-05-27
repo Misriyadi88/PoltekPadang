@@ -31,7 +31,15 @@
             </a>
 
             <a href="/customers" class="block px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 flex items-center">
-                <i class="fas fa-car mr-2"></i> Customers
+                <i class="fas fa-user-circle mr-2"></i> Customers
+            </a>
+
+            <a href="/service-types" class="block px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 flex items-center">
+                <i class="fas fa-tools mr-2"></i> Service Types
+            </a>
+
+            <a href="/membership-packages" class="block px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 flex items-center">
+                <i class="fas fa-box-open mr-2"></i> Membership Package
             </a>
 
             <a href="/vehicle-types" class="block px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 flex items-center">

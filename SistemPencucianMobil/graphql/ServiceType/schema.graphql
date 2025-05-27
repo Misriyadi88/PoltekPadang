@@ -28,7 +28,7 @@ extend type Query {
     serviceTypes: [ServiceType!]! @all(model: "App\\Models\\ServiceType\\ServiceType")
 
     serviceType(service_type_id: ID! @eq(key: "service_type_id")): ServiceType
-    @find(model: "App\\Models\\ServiceTyp\\ServiceTypee")
+    @find(model: "App\\Models\\ServiceType\\ServiceTypee")
 }
 
 extend type Mutation {

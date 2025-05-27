@@ -1,6 +1,6 @@
-function vehicleTypeData() {
+function serviceTypeData() {
     return {
-        vehicleTypes: [],
+        serviceTypes: [],
         pagination: {
             current_page: 1,
             last_page: 1,
@@ -13,39 +13,32 @@ function vehicleTypeData() {
         search: '',
         status: '',
         showDeleteModal: false,
-        vehicleTypeIdToDelete: null,
+        serviceTypeIdToDelete: null,
 
         init() {
-            this.fetchVehicleTypes();
+            this.fetchServiceTypes();
         },
 
-
-
-        async fetchVehicleTypes() {
+        async fetchServiceTypes() {
             try {
                 const query = `
-                    query($search: String, $is_active: Boolean) {
-                        vehicleTypes(search: $search, is_active: $is_active) {
-                        vehicle_type_id
-                        type_name
-                        code
-                        description
-                        is_active
+                    query {
+                        serviceTypes {
+                            service_type_id
+                            type_name
+                            code
+                            description
+                            is_active
+                            created_at
+                            updated_at
                         }
                     }
-                    `;
-
-                const variables = {
-                    page: this.pagination.current_page,
-                    perPage: this.pagination.per_page,
-                    search: this.search || null,
-                    is_active: this.status === '' ? null : this.status === '1'
-                };
+                `;
 
                 const response = await fetch('/graphql', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, variables })
+                    body: JSON.stringify({ query })
                 });
 
                 const result = await response.json();
@@ -53,49 +46,57 @@ function vehicleTypeData() {
                     console.error('GraphQL errors:', result.errors);
                     return;
                 }
-                console.log('Fetched data:', result.data.vehicleTypes);
 
-                this.vehicleTypes = result.data.vehicleTypes || [];
+                console.log('Fetched data:', result.data.serviceTypes);
 
+                let allServiceTypes = result.data.serviceTypes || [];
+
+                // Filter status (aktif / nonaktif)
                 if (this.status !== '') {
                     const isActiveBool = this.status === '1';
-                    this.vehicleTypes = this.vehicleTypes.filter(v => v.is_active === isActiveBool);
+                    allServiceTypes = allServiceTypes.filter(s => s.is_active === isActiveBool);
                 }
 
+                // Search
                 if (this.search) {
                     const lowerSearch = this.search.toLowerCase();
-                    this.vehicleTypes = this.vehicleTypes.filter(v =>
-                        v.type_name.toLowerCase().includes(lowerSearch)
+                    allServiceTypes = allServiceTypes.filter(s =>
+                        s.type_name.toLowerCase().includes(lowerSearch)
                     );
                 }
 
-                // Karena kita belum dapat info pagination dari GraphQL, kita hitung manual
-                this.pagination.total = this.vehicleTypes.length;
-                this.pagination.last_page = 1;
-                this.pagination.from = 1;
-                this.pagination.to = this.vehicleTypes.length;
+                // Manual pagination
+                const start = (this.pagination.current_page - 1) * this.pagination.per_page;
+                const end = start + this.pagination.per_page;
+                this.serviceTypes = allServiceTypes.slice(start, end);
+
+                this.pagination.total = allServiceTypes.length;
+                this.pagination.last_page = Math.ceil(this.pagination.total / this.pagination.per_page);
+                this.pagination.from = start + 1;
+                this.pagination.to = Math.min(end, this.pagination.total);
+
             } catch (error) {
-                console.error('Error fetching vehicle types:', error);
+                console.error('Error fetching service types:', error);
             }
         },
 
         async changePage(page) {
             if (page === '...' || isNaN(page)) return;
             this.pagination.current_page = parseInt(page);
-            await this.fetchVehicleTypes();
+            await this.fetchServiceTypes();
         },
 
         async previousPage() {
             if (this.pagination.current_page > 1) {
                 this.pagination.current_page--;
-                await this.fetchVehicleTypes();
+                await this.fetchServiceTypes();
             }
         },
 
         async nextPage() {
             if (this.pagination.current_page < this.pagination.last_page) {
                 this.pagination.current_page++;
-                await this.fetchVehicleTypes();
+                await this.fetchServiceTypes();
             }
         },
 
@@ -103,26 +104,26 @@ function vehicleTypeData() {
             this.search = '';
             this.status = '';
             this.pagination.current_page = 1;
-            await this.fetchVehicleTypes();
+            await this.fetchServiceTypes();
         },
 
         confirmDelete(id) {
-            this.vehicleTypeIdToDelete = id;
+            this.serviceTypeIdToDelete = id;
             this.showDeleteModal = true;
         },
 
-        async deleteVehicleType() {
+        async deleteServiceType() {
             try {
                 const mutation = `
-                    mutation($vehicle_type_id: ID!) {
-                        deleteVehicleType(vehicle_type_id: $vehicle_type_id) {
-                            vehicle_type_id
+                    mutation($service_type_id: ID!) {
+                        deleteServiceType(service_type_id: $service_type_id) {
+                            service_type_id
                         }
                     }
                 `;
 
                 const variables = {
-                    vehicle_type_id: this.vehicleTypeIdToDelete
+                    service_type_id: this.serviceTypeIdToDelete
                 };
 
                 const response = await fetch('/graphql', {
@@ -132,16 +133,15 @@ function vehicleTypeData() {
                 });
 
                 const result = await response.json();
-
-                if (result.data?.deleteVehicleType?.vehicle_type_id) {
+                if (result.data?.deleteServiceType?.service_type_id) {
                     this.showDeleteModal = false;
-                    this.vehicleTypeIdToDelete = null;
-                    await this.fetchVehicleTypes();
+                    this.serviceTypeIdToDelete = null;
+                    await this.fetchServiceTypes();
                 } else {
-                    console.error('Failed to delete vehicle type.');
+                    console.error('Failed to delete service type.');
                 }
             } catch (error) {
-                console.error('Error deleting vehicle type:', error);
+                console.error('Error deleting service type:', error);
             }
         }
     };
